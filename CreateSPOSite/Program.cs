@@ -90,5 +90,45 @@ namespace CreateSPOSite
             }
             return secureStr;
         }
+        public bool isSiteExist(string SiteURLToBeCreated, ClientContext TenantContext)
+        {
+            bool status = true;
+
+            using (TenantContext)
+            {
+                // get tenant object
+                Tenant oTenant = new Tenant(TenantContext);
+
+                //get all SPO site property - which includes all the site collections
+                SPOSitePropertiesEnumerable SPOEnum = oTenant.GetSiteProperties(0, true);
+
+                //load the prop object
+                TenantContext.Load(SPOEnum);
+
+                //execute the query
+                TenantContext.ExecuteQuery();
+                
+                //iterate thru to check if the url matches, if yes retun true 
+                foreach (var item in SPOEnum)
+                {
+                    //current SPO site collection URL
+                    string CurrentSiteURL = item.Url.ToLower().Trim();
+                    //Site collection url you want to create
+                    string ToBeCreatedSiteURl = SiteURLToBeCreated.ToLower().Trim();
+
+                    //do the url match?
+                    if (CurrentSiteURL == ToBeCreatedSiteURl)
+                    {
+                        status = false;
+                        break;
+                    }
+                }
+
+
+            }
+
+            return status;
+
+        }
     }
 }
