@@ -130,5 +130,42 @@ namespace CreateSPOSite
             return status;
 
         }
+        public void TurnOnExternalShareing(string SiteURL, ClientContext TenantContext)
+        {
+            //this method turns the "exernal sharing feature" to ON, if its already ON, nothing is done
+            //get tenant object
+            Tenant oTenant = new Tenant(TenantContext);
+            
+            //get the sitecollection property of desired site
+            SiteProperties SiteCollProp = oTenant.GetSitePropertiesByUrl(SiteURL, true);
+            
+            //load object
+            TenantContext.Load(SiteCollProp);
+            
+            //get data from server
+            TenantContext.ExecuteQuery();
+
+            //read the office article to understand the sharing feature then turn the flag on off as desired
+            // https://support.office.com/en-us/article/Manage-external-sharing-for-your-SharePoint-Online-environment-c8a462eb-0723-4b0b-8d0a-70feafe4be85
+
+
+            //select the appropriate type of external sharing flag, you enum SharingCapabilities for all options
+            SiteCollProp.SharingCapability =
+                Microsoft.Online.SharePoint.TenantManagement.SharingCapabilities.ExternalUserSharingOnly;
+
+            //other sharing options as below
+
+            //1. set the whitelisted domains here
+            SiteCollProp.SharingAllowedDomainList = "enter the domains here";
+
+            //2. OR set the black listed domains here
+            SiteCollProp.SharingBlockedDomainList = "enter the domains here";
+
+            //once all the changes are done, call update method
+            SiteCollProp.Update();
+
+            TenantContext.ExecuteQuery();
+            
+        }
     }
 }
